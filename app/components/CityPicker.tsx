@@ -1,79 +1,84 @@
 'use client';
 
-import { Country, City } from 'country-state-city';
-import { useRouter } from 'next/router';
+import { City, State } from 'country-state-city';
 import { useState } from 'react';
 import Select from 'react-select';
 import { GlobeIcon } from '@heroicons/react/solid';
+import { log } from 'console';
 
-type option = {
+type Option = {
+  value: string;
+  label: string;
+};
+
+type CityOption = {
   value: {
     latitude: string;
     longitude: string;
     isoCode: string;
   };
   label: string;
-} | null;
-
-type cityOption = {
-  value: {
-    latitude: string;
-    longitude: string;
-    isoCode: string;
-  };
-  label: string;
-} | null;
-
-const options = Country.getAllCountries().map((country) => ({
-  value: {
-    latitude: country.latitude,
-    longitude: country.longitude,
-    isoCode: country.isoCode,
-  },
-  label: country.name,
-}));
+};
 
 function CityPicker() {
-  const [selectedCountry, setSelectedCountry] = useState<option>(null);
-  const [selectedCity, setSelectedCity] = useState<cityOption>(null);
-  //   const router = useRouter();
+  const [selectedState, setSelectedState] = useState<Option | null>(null);
+  const [selectedCity, setSelectedCity] = useState<CityOption | null>(null);
 
-  const handleSelectedCountry = (option: option) => {
-    setSelectedCountry(option);
+  const handleSelectedState = (option: Option | null) => {
+    setSelectedState(option);
     setSelectedCity(null);
   };
 
-  const handleSelectedCity = (cityOption: cityOption) => {
-    setSelectedCity(cityOption);
-    // router.push(`/location/${option?.value.latitude/${option?.value.longitude}`)
+  const handleSelectedCity = (option: CityOption | null) => {
+    setSelectedCity(option);
   };
+
+  const stateOptions = State.getStatesOfCountry('AU').map((state) => ({
+    value: state.isoCode,
+    label: state.name,
+  }));
+
+  const cityOptions = selectedState
+    ? City.getCitiesOfState('AU', selectedState.value).map((city) => ({
+        value: {
+          latitude: '',
+          longitude: '',
+          isoCode: '',
+        },
+        label: city.name,
+      }))
+    : [];
 
   return (
     <div className="space-y-4">
       <div className="space-y-2">
         <div className="flex items-center space-x-2 text-white/80 text-base">
           <GlobeIcon className="h-5 w-5 text-white" />
-          <label htmlFor="country">Country</label>
+          <label htmlFor="state">State</label>
         </div>
+
         <Select
-          className="text-black"
-          value={selectedCountry}
-          onChange={handleSelectedCountry}
-          options={options}
+          options={stateOptions}
+          placeholder="Select a state"
+          value={selectedState}
+          onChange={(option) => handleSelectedState(option as Option | null)}
         />
       </div>
 
-      {selectedCountry && (
+      {selectedState && (
         <div className="space-y-2">
           <div className="flex items-center space-x-2 text-white/80 text-base">
             <GlobeIcon className="h-5 w-5 text-white" />
-            <label htmlFor="country">Country</label>
+            <label htmlFor="city">City</label>
           </div>
+
           <Select
-            className="text-black"
+            options={cityOptions}
+            placeholder="Select a city"
             value={selectedCity}
-            onChange={handleSelectedCity}
-            options={options}
+            onChange={(option) =>
+              handleSelectedCity(option as CityOption | null)
+            }
           />
         </div>
       )}

@@ -9,7 +9,7 @@ export default function Home() {
       <main className="text-6xl">
         <Card className="max-w-4xl mx-auto">
           <Text className="text-5xl font-bold text-center mb-10 text-slate-600">
-            Weather AI
+            AussieWeatherAI
           </Text>
           <Subtitle className="text-xl text-center">
             Powered by Next.js 13.3, Tailwind CSS, Tremor 2.0, GraphQL
