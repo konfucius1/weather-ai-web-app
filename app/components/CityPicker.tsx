@@ -4,6 +4,7 @@ import { City, State } from 'country-state-city';
 import { useState } from 'react';
 import Select from 'react-select';
 import { GlobeIcon } from '@heroicons/react/solid';
+import { useRouter } from 'next/navigation';
 import { log } from 'console';
 
 type Option = {
@@ -11,26 +12,33 @@ type Option = {
   label: string;
 };
 
-type CityOption = {
+type cityOption = {
   value: {
     latitude: string;
     longitude: string;
     isoCode: string;
+    name: string;
   };
   label: string;
 };
 
 function CityPicker() {
   const [selectedState, setSelectedState] = useState<Option | null>(null);
-  const [selectedCity, setSelectedCity] = useState<CityOption | null>(null);
+  const [selectedCity, setSelectedCity] = useState<cityOption | null>(null);
+  const router = useRouter();
 
   const handleSelectedState = (option: Option | null) => {
     setSelectedState(option);
     setSelectedCity(null);
   };
 
-  const handleSelectedCity = (option: CityOption | null) => {
+  const handleSelectedCity = (option: cityOption | null) => {
     setSelectedCity(option);
+    console.log(option);
+
+    router.push(
+      `/location/${option?.value.name}/${option?.value.latitude}/${option?.value.longitude}`
+    );
   };
 
   const stateOptions = State.getStatesOfCountry('AU').map((state) => ({
@@ -41,9 +49,9 @@ function CityPicker() {
   const cityOptions = selectedState
     ? City.getCitiesOfState('AU', selectedState.value).map((city) => ({
         value: {
-          latitude: '',
-          longitude: '',
-          isoCode: '',
+          latitude: city.latitude,
+          longitude: city.longitude,
+          name: city.name,
         },
         label: city.name,
       }))
@@ -77,7 +85,7 @@ function CityPicker() {
             placeholder="Select a city"
             value={selectedCity}
             onChange={(option) =>
-              handleSelectedCity(option as CityOption | null)
+              handleSelectedCity(option as cityOption | null)
             }
           />
         </div>
